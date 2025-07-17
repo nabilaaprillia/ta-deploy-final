@@ -7,3 +7,4 @@ pandas
 matplotlib
 seaborn
 streamlit-webrtc
+mediapipe
