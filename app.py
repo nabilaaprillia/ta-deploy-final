@@ -111,15 +111,18 @@ if uploaded_file:
                         tickfont=dict(size=16)
                     ),
                     yaxis=dict(
-                        title='Probabilitas',
-                        titlefont=dict(size=14),
-                        tickfont=dict(size=14)
+                        title=dict(
+                            text='Probabilitas',
+                            font=dict(size=16)
+                        ),
+                        tickfont=dict(size=16)
                     ),
                     title=dict(
                         text='Probabilitas Emosi',
                         font=dict(size=20)
                     )
                 )
+
             except Exception as e:
                 st.error(f"❗ Terjadi error saat mengatur layout grafik: {e}")
 
