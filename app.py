@@ -6,6 +6,7 @@ import cv2
 from PIL import Image
 import time
 import mediapipe as mp
+import plotly.graph_objects as go
 
 mp_face_detection = mp.solutions.face_detection
 mp_drawing = mp.solutions.drawing_utils 
@@ -94,7 +95,31 @@ if uploaded_file:
             st.success(pred_label.upper())
 
             st.subheader("📊 Probabilitas:")
-            st.bar_chart({labels[i]: float(prediction[0][i]) for i in range(len(labels))})
+            # Data
+            labels = ['jijik', 'marah', 'netral', 'sedih', 'senang', 'takut', 'terkejut']
+            probabilities = [float(prediction[0][i]) for i in range(len(labels))]
+
+            # Buat bar chart dengan Plotly
+            fig = go.Figure(data=[
+                go.Bar(x=labels, y=probabilities, marker_color='skyblue')
+            ])
+
+            # Update tampilan agar label besar
+            fig.update_layout(
+                xaxis=dict(
+                    tickfont=dict(size=16)  # ukuran label emosi
+                ),
+                yaxis=dict(
+                    title='Probabilitas',
+                    titlefont=dict(size=14),
+                    tickfont=dict(size=14)
+                ),
+                title='Probabilitas Emosi',
+                titlefont=dict(size=18)
+            )
+
+            # Tampilkan di Streamlit
+            st.plotly_chart(fig, use_container_width=True)
     else:
         with col2:
             st.error("❗ Wajah tidak terdeteksi. Coba upload gambar dengan wajah yang lebih jelas.")
