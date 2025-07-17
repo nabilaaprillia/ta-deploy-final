@@ -78,7 +78,7 @@ if uploaded_file:
     with col1:
         img = Image.open(uploaded_file).convert('RGB')
         img_array = np.array(img)
-        st.image(img, caption='Gambar Diupload', width=250)
+        st.image(img, caption='Gambar Diupload', width=500)
 
     # Deteksi dan crop wajah
     face_crop = crop_face_with_mediapipe(img_array)
