@@ -1,12 +1,13 @@
 from model import build_resnet50, build_efficientnet, build_resnet50_optimized
 from tensorflow.keras.applications.resnet import preprocess_input  # Gunakan yang sama untuk semua
-import streamlit as st
 import numpy as np
 import cv2
 from PIL import Image
 import time
 import mediapipe as mp
 import plotly.graph_objects as go
+import streamlit as st
+st.set_page_config(layout="wide") 
 
 mp_face_detection = mp.solutions.face_detection
 mp_drawing = mp.solutions.drawing_utils 
