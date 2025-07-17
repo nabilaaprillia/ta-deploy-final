@@ -109,18 +109,18 @@ if uploaded_file:
             try:
                 fig.update_layout(
                     xaxis=dict(
-                        tickfont=dict(size=16)
+                        tickfont=dict(size=20)
                     ),
                     yaxis=dict(
                         title=dict(
                             text='Probabilitas',
-                            font=dict(size=16)
+                            font=dict(size=20)
                         ),
-                        tickfont=dict(size=16)
+                        tickfont=dict(size=18)
                     ),
                     title=dict(
                         text='Probabilitas Emosi',
-                        font=dict(size=20)
+                        font=dict(size=24)
                     )
                 )
 
