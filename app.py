@@ -105,18 +105,24 @@ if uploaded_file:
             ])
 
             # Update tampilan agar label besar
-            fig.update_layout(
-                xaxis=dict(
-                    tickfont=dict(size=16)  # ukuran label emosi
-                ),
-                yaxis=dict(
-                    title='Probabilitas',
-                    titlefont=dict(size=14),
-                    tickfont=dict(size=14)
-                ),
-                title='Probabilitas Emosi',
-                titlefont=dict(size=18)
-            )
+            try:
+                fig.update_layout(
+                    xaxis=dict(
+                        tickfont=dict(size=16)
+                    ),
+                    yaxis=dict(
+                        title='Probabilitas',
+                        titlefont=dict(size=14),
+                        tickfont=dict(size=14)
+                    ),
+                    title=dict(
+                        text='Probabilitas Emosi',
+                        font=dict(size=20)
+                    )
+                )
+            except Exception as e:
+                st.error(f"❗ Terjadi error saat mengatur layout grafik: {e}")
+
 
             # Tampilkan di Streamlit
             st.plotly_chart(fig, use_container_width=True)
