@@ -75,10 +75,10 @@ if uploaded_file:
 
     with col1:
         img = Image.open(uploaded_file).convert('RGB')
-        img_resized = img.resize((224, 224))
-        st.image(img_resized, caption='Gambar Diupload', width=250)
+        img_array = np.array(img)
+        st.image(img, caption='Gambar Diupload', width=250)
 
-    img_array = np.array(img)
+    # Deteksi dan crop wajah
     face_crop = crop_face_with_mediapipe(img_array)
 
     if face_crop is not None:
@@ -96,19 +96,11 @@ if uploaded_file:
             st.subheader("📊 Probabilitas:")
             st.bar_chart({labels[i]: float(prediction[0][i]) for i in range(len(labels))})
     else:
-        st.error("❗ Wajah tidak terdeteksi. Coba upload gambar dengan wajah yang lebih jelas.")
-
-        prediction = model.predict(img_input)
-        pred_label = labels[np.argmax(prediction)]
-
-    with col2:
-        st.subheader("🎯 Prediksi Emosi:")
-        st.success(pred_label.upper())
-
-        st.subheader("📊 Probabilitas:")
-        st.bar_chart({labels[i]: float(prediction[0][i]) for i in range(len(labels))})
+        with col2:
+            st.error("❗ Wajah tidak terdeteksi. Coba upload gambar dengan wajah yang lebih jelas.")
 else:
-        st.write("📤 Silakan upload gambar terlebih dahulu untuk melihat prediksi.")
+    st.write("📤 Silakan upload gambar terlebih dahulu untuk melihat prediksi.")
+
 
 # === Webcam Mode ===
 if use_webcam:
