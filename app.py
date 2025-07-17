@@ -5,6 +5,32 @@ import numpy as np
 import cv2
 from PIL import Image
 import time
+import mediapipe as mp
+
+mp_face_detection = mp.solutions.face_detection
+mp_drawing = mp.solutions.drawing_utils 
+
+def crop_face_with_mediapipe(image):
+    with mp_face_detection.FaceDetection(model_selection=1, min_detection_confidence=0.5) as detector:
+        results = detector.process(image)
+        if results.detections:
+            detection = results.detections[0]
+            bbox = detection.location_data.relative_bounding_box
+            h, w, _ = image.shape
+            x_min = int(bbox.xmin * w)
+            y_min = int(bbox.ymin * h)
+            box_w = int(bbox.width * w)
+            box_h = int(bbox.height * h)
+
+            # Pastikan bounding box tidak keluar batas
+            x_min = max(0, x_min)
+            y_min = max(0, y_min)
+            x_max = min(w, x_min + box_w)
+            y_max = min(h, y_min + box_h)
+
+            face_crop = image[y_min:y_max, x_min:x_max]
+            return face_crop
+    return None
 
 # === Sidebar ===
 st.sidebar.title("🔧 Pilih Model")
@@ -52,12 +78,28 @@ if uploaded_file:
         img_resized = img.resize((224, 224))
         st.image(img_resized, caption='Gambar Diupload', width=250)
 
-    img_array = np.array(img_resized)
-    img_preprocessed = preprocess_input(img_array)
-    img_input = np.expand_dims(img_preprocessed, axis=0)
+    img_array = np.array(img)
+    face_crop = crop_face_with_mediapipe(img_array)
 
-    prediction = model.predict(img_input)
-    pred_label = labels[np.argmax(prediction)]
+    if face_crop is not None:
+        face_resized = cv2.resize(face_crop, (224, 224))
+        img_preprocessed = preprocess_input(face_resized)
+        img_input = np.expand_dims(img_preprocessed, axis=0)
+
+        prediction = model.predict(img_input)
+        pred_label = labels[np.argmax(prediction)]
+
+        with col2:
+            st.subheader("🎯 Prediksi Emosi:")
+            st.success(pred_label.upper())
+
+            st.subheader("📊 Probabilitas:")
+            st.bar_chart({labels[i]: float(prediction[0][i]) for i in range(len(labels))})
+    else:
+        st.error("❗ Wajah tidak terdeteksi. Coba upload gambar dengan wajah yang lebih jelas.")
+
+        prediction = model.predict(img_input)
+        pred_label = labels[np.argmax(prediction)]
 
     with col2:
         st.subheader("🎯 Prediksi Emosi:")
@@ -66,7 +108,7 @@ if uploaded_file:
         st.subheader("📊 Probabilitas:")
         st.bar_chart({labels[i]: float(prediction[0][i]) for i in range(len(labels))})
 else:
-    st.write("📤 Silakan upload gambar terlebih dahulu untuk melihat prediksi.")
+        st.write("📤 Silakan upload gambar terlebih dahulu untuk melihat prediksi.")
 
 # === Webcam Mode ===
 if use_webcam:
@@ -80,22 +122,35 @@ if use_webcam:
         if ret:
             # Preprocess frame
             img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            img_resized = cv2.resize(img, (224, 224))
-            img_input = np.expand_dims(preprocess_input(img_resized), axis=0)
+            face_crop = crop_face_with_mediapipe(img)
 
-            # Predict
-            pred = model.predict(img_input)
-            
+            if face_crop is not None:
+                face_resized = cv2.resize(face_crop, (224, 224))
+                img_input = np.expand_dims(preprocess_input(face_resized), axis=0)
 
-            start = time.time()
-            pred = model.predict(img_input)
-            duration = time.time() - start
+                start = time.time()
+                pred = model.predict(img_input)
+                duration = time.time() - start
 
-            label = labels[np.argmax(pred)]
+                label = labels[np.argmax(pred)]
 
-            # Tambahkan teks ke gambar
-            cv2.putText(img, label.upper(), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-            FRAME_WINDOW.image(img)
-        else:
-            st.warning("Webcam tidak bisa dibaca.")
-    cap.release()
+                cv2.putText(img, label.upper(), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                FRAME_WINDOW.image(img)
+            else:
+                st.warning("❗ Wajah tidak terdeteksi oleh MediaPipe.")
+
+
+                # Predict
+                pred = model.predict(img_input)
+                
+
+                start = time.time()
+                pred = model.predict(img_input)
+                duration = time.time() - start
+
+                label = labels[np.argmax(pred)]
+
+                # Tambahkan teks ke gambar
+                cv2.putText(img, label.upper(), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                FRAME_WINDOW.image(img)
+                cap.release()
